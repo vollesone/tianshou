@@ -85,12 +85,15 @@ class PPOPolicy(A2CPolicy):
         
         ######################
         self.frozen = False
-        print(self.parameters())
+        # print(self.parameters())
         ######################
     
     def freeze(self):
-        print(self.parameters())
+        # print(self.parameters())
         self.frozen = True
+    
+    def unfreeze(self):
+        self.frozen = False
 
     def process_fn(
         self, batch: Batch, buffer: ReplayBuffer, indices: np.ndarray
@@ -108,6 +111,15 @@ class PPOPolicy(A2CPolicy):
         self, batch: Batch, batch_size: int, repeat: int, **kwargs: Any
     ) -> Dict[str, List[float]]:
         losses, clip_losses, vf_losses, ent_losses = [], [], [], []
+        
+        if self.frozen:
+            return {
+                "loss": losses,
+                "loss/clip": clip_losses,
+                "loss/vf": vf_losses,
+                "loss/ent": ent_losses,
+            }
+        
         for step in range(repeat):
             if self._recompute_adv and step > 0:
                 batch = self._compute_returns(batch, self._buffer, self._indices)
