@@ -82,6 +82,15 @@ class PPOPolicy(A2CPolicy):
         self._norm_adv = advantage_normalization
         self._recompute_adv = recompute_advantage
         self._actor_critic: ActorCritic
+        
+        ######################
+        self.frozen = False
+        print(self.parameters())
+        ######################
+    
+    def freeze(self):
+        print(self.parameters())
+        self.frozen = True
 
     def process_fn(
         self, batch: Batch, buffer: ReplayBuffer, indices: np.ndarray
