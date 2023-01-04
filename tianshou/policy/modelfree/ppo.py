@@ -89,6 +89,7 @@ class PPOPolicy(A2CPolicy):
         ######################
     
     def freeze(self):
+        # PERHAPS FREEZE PARAMETERS TOO? self.parameters() ???
         # print(self.parameters())
         self.frozen = True
     

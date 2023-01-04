@@ -171,6 +171,12 @@ class MultiAgentPolicyManager(BasePolicy):
         holder["state"] = state_dict
         return holder
 
+    def freeze(self, agent_id):
+        self.policies[agent_id].freeze()
+    
+    def unfreeze(self, agent_id):
+        self.policies[agent_id].unfreeze()
+
     def learn(self, batch: Batch,
               **kwargs: Any) -> Dict[str, Union[float, List[float]]]:
         """Dispatch the data to all policies for learning.
