@@ -106,13 +106,29 @@ class Critic(nn.Module):
         self.preprocess = preprocess_net
         self.output_dim = 1
         input_dim = getattr(preprocess_net, "output_dim", preprocess_net_output_dim)
+        
+        self.input_dim = input_dim
+        self.hidden_sizes = hidden_sizes
+        self.linear_layer = linear_layer
+        self.flatten_input = flatten_input
+        
         self.last = MLP(
-            input_dim,  # type: ignore
+            self.input_dim,  # type: ignore
             1,
-            hidden_sizes,
+            self.hidden_sizes,
             device=self.device,
-            linear_layer=linear_layer,
-            flatten_input=flatten_input,
+            linear_layer=self.linear_layer,
+            flatten_input=self.flatten_input,
+        )
+    
+    def reset_last(self):
+        self.last = MLP(
+            self.input_dim,  # type: ignore
+            1,
+            self.hidden_sizes,
+            device=self.device,
+            linear_layer=self.linear_layer,
+            flatten_input=self.flatten_input,
         )
 
     def forward(
@@ -182,24 +198,39 @@ class ActorProb(nn.Module):
         self.device = device
         self.output_dim = int(np.prod(action_shape))
         input_dim = getattr(preprocess_net, "output_dim", preprocess_net_output_dim)
+        
+        self.input_dim = input_dim
+        self.hidden_sizes = hidden_sizes
+        
         self.mu = MLP(
-            input_dim,  # type: ignore
+            self.input_dim,  # type: ignore
             self.output_dim,
-            hidden_sizes,
-            device=self.device
+            self.hidden_sizes,
+            device=self.device,
         )
         self._c_sigma = conditioned_sigma
         if conditioned_sigma:
             self.sigma = MLP(
-                input_dim,  # type: ignore
+                self.input_dim,  # type: ignore
                 self.output_dim,
-                hidden_sizes,
+                self.hidden_sizes,
                 device=self.device
             )
         else:
             self.sigma_param = nn.Parameter(torch.zeros(self.output_dim, 1))
         self._max = max_action
         self._unbounded = unbounded
+    
+    def reset_last(self):
+        self.mu = MLP(
+            self.input_dim,  # type: ignore
+            self.output_dim,
+            self.hidden_sizes,
+            device=self.device,
+        )
+        
+        self.sigma_param = nn.Parameter(torch.zeros(self.output_dim, 1))
+        # TODO: remove the above line? I'm not sure it is needed
 
     def forward(
         self,

@@ -170,6 +170,9 @@ class MultiAgentPolicyManager(BasePolicy):
         holder["out"] = out_dict
         holder["state"] = state_dict
         return holder
+    
+    def reset_last(self, agent_id):
+        self.policies[agent_id].reset_last()
 
     def freeze(self, agent_id):
         self.policies[agent_id].freeze()
