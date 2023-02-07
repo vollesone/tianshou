@@ -223,9 +223,10 @@ class ActorProb(nn.Module):
     
     def reset_last(self):
         self.mu.reset_model()
-        
-        # self.sigma_param = nn.Parameter(torch.zeros(self.output_dim, 1))
-        # TODO: remove the above line? I'm not sure it is needed
+        if self._c_sigma:
+            self.sigma.reset_model()
+        else:
+            self.sigma_param = nn.Parameter(torch.zeros(self.output_dim, 1))
 
     def forward(
         self,
