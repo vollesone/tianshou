@@ -48,13 +48,25 @@ class Actor(nn.Module):
         self.preprocess = preprocess_net
         self.output_dim = int(np.prod(action_shape))
         input_dim = getattr(preprocess_net, "output_dim", preprocess_net_output_dim)
+        
+        self.input_dim = input_dim
+        self.hidden_sizes = hidden_sizes
+        
         self.last = MLP(
-            input_dim,  # type: ignore
+            self.input_dim,  # type: ignore
             self.output_dim,
-            hidden_sizes,
+            self.hidden_sizes,
             device=self.device
         )
         self._max = max_action
+    
+    def reset_last(self):
+        self.last = MLP(
+            self.input_dim,  # type: ignore
+            self.output_dim,
+            self.hidden_sizes,
+            device=self.device
+        )
 
     def forward(
         self,
