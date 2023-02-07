@@ -62,12 +62,7 @@ class Actor(nn.Module):
         self.softmax_output = softmax_output
     
     def reset_last(self):
-        self.last = MLP(
-            self.input_dim,  # type: ignore
-            self.output_dim,
-            self.hidden_sizes,
-            device=self.device
-        )
+        self.last.reset_model()
 
     def forward(
         self,
@@ -131,12 +126,7 @@ class Critic(nn.Module):
         )
     
     def reset_last(self):
-        self.last = MLP(
-            self.input_dim,  # type: ignore
-            self.last_size,
-            self.hidden_sizes,
-            device=self.device
-        )
+        self.last.reset_model()
 
     def forward(
         self, obs: Union[np.ndarray, torch.Tensor], **kwargs: Any

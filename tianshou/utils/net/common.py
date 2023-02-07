@@ -135,6 +135,12 @@ class MLP(nn.Module):
         self.output_dim = output_dim or hidden_sizes[-1]
         self.model = nn.Sequential(*model)
         self.flatten_input = flatten_input
+    
+    def reset_model(self):
+        for m in self.model.modules():
+            if isinstance(m, torch.nn.Linear):
+                torch.nn.init.orthogonal_(m.weight)
+                torch.nn.init.zeros_(m.bias)
 
     @no_type_check
     def forward(self, obs: Union[np.ndarray, torch.Tensor]) -> torch.Tensor:

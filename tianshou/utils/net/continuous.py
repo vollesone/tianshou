@@ -61,12 +61,7 @@ class Actor(nn.Module):
         self._max = max_action
     
     def reset_last(self):
-        self.last = MLP(
-            self.input_dim,  # type: ignore
-            self.output_dim,
-            self.hidden_sizes,
-            device=self.device
-        )
+        self.last.reset_model()
 
     def forward(
         self,
@@ -134,14 +129,7 @@ class Critic(nn.Module):
         )
     
     def reset_last(self):
-        self.last = MLP(
-            self.input_dim,  # type: ignore
-            1,
-            self.hidden_sizes,
-            device=self.device,
-            linear_layer=self.linear_layer,
-            flatten_input=self.flatten_input,
-        )
+        self.last.reset_model()
 
     def forward(
         self,
@@ -234,14 +222,9 @@ class ActorProb(nn.Module):
         self._unbounded = unbounded
     
     def reset_last(self):
-        self.mu = MLP(
-            self.input_dim,  # type: ignore
-            self.output_dim,
-            self.hidden_sizes,
-            device=self.device,
-        )
+        self.mu.reset_model()
         
-        self.sigma_param = nn.Parameter(torch.zeros(self.output_dim, 1))
+        # self.sigma_param = nn.Parameter(torch.zeros(self.output_dim, 1))
         # TODO: remove the above line? I'm not sure it is needed
 
     def forward(
