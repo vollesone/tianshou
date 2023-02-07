@@ -88,7 +88,7 @@ class PPOPolicy(A2CPolicy):
         # print(self.parameters())
         ######################
     
-    def reset_last(self, actor_last=True, critic_last=True):
+    def reset_last(self, actor_last=False, critic_last=False):
         if actor_last:
             self.actor.reset_last()
         if critic_last:
