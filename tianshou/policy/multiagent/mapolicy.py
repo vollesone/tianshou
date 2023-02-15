@@ -174,11 +174,11 @@ class MultiAgentPolicyManager(BasePolicy):
     def reset_last(self, agent_id, actor_last=False, critic_last=False):
         self.policies[agent_id].reset_last(actor_last=actor_last, critic_last=critic_last)
 
-    def freeze(self, agent_id):
-        self.policies[agent_id].freeze()
+    def freeze(self, agent_id, grad_freeze=False):
+        self.policies[agent_id].freeze(grad_freeze)
     
-    def unfreeze(self, agent_id):
-        self.policies[agent_id].unfreeze()
+    def unfreeze(self, agent_id, grad_unfreeze=False):
+        self.policies[agent_id].unfreeze(grad_freeze)
 
     def learn(self, batch: Batch,
               **kwargs: Any) -> Dict[str, Union[float, List[float]]]:

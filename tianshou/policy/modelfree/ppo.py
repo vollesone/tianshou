@@ -94,19 +94,21 @@ class PPOPolicy(A2CPolicy):
         if critic_last:
             self.critic.reset_last()
     
-    def freeze(self):
+    def freeze(self, grad_freeze):
         # PERHAPS FREEZE PARAMETERS TOO? self.parameters() ???
         # print(self.parameters())
         self.frozen = True
         
-        for param in self._actor_critic.parameters():
-            param.requires_grad = False
+        if grad_freeze:
+            for param in self._actor_critic.parameters():
+                param.requires_grad = False
     
-    def unfreeze(self):
+    def unfreeze(self, grad_freeze):
         self.frozen = False
         
-        for param in self._actor_critic.parameters():
-            param.requires_grad = True
+        if grad_freeze:
+            for param in self._actor_critic.parameters():
+                param.requires_grad = True
 
     def process_fn(
         self, batch: Batch, buffer: ReplayBuffer, indices: np.ndarray
