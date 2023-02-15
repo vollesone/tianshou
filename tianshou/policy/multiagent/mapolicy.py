@@ -178,7 +178,7 @@ class MultiAgentPolicyManager(BasePolicy):
         self.policies[agent_id].freeze(grad_freeze)
     
     def unfreeze(self, agent_id, grad_unfreeze=False):
-        self.policies[agent_id].unfreeze(grad_freeze)
+        self.policies[agent_id].unfreeze(grad_unfreeze)
 
     def learn(self, batch: Batch,
               **kwargs: Any) -> Dict[str, Union[float, List[float]]]:
