@@ -65,12 +65,13 @@ class PettingZooEnv(AECEnv, ABC):
 
         self.reset()
 
-    def reset(self, *args: Any, **kwargs: Any) -> Tuple[dict, dict]:
+    def reset(self, obs_all_agents=False, *args: Any, **kwargs: Any) -> Tuple[dict, dict]:
         self.env.reset(*args, **kwargs)
 
         observation, reward, terminated, truncated, info = self.env.last(self)
 
         if isinstance(observation, dict) and 'action_mask' in observation:
+            assert not obs_all_agents, 'obs_all_agents not implemented'
             observation_dict = {
                 'agent_id': self.env.agent_selection,
                 'obs': observation['observation'],
@@ -79,6 +80,7 @@ class PettingZooEnv(AECEnv, ABC):
             }
         else:
             if isinstance(self.action_space, spaces.Discrete):
+                assert not obs_all_agents, 'obs_all_agents not implemented'
                 observation_dict = {
                     'agent_id': self.env.agent_selection,
                     'obs': observation,
@@ -89,8 +91,14 @@ class PettingZooEnv(AECEnv, ABC):
                     'agent_id': self.env.agent_selection,
                     'obs': observation,
                 }
-
-        return observation_dict, info
+                
+                if obs_all_agents:
+                    all_observations = {agent: self.env.observe(agent) for agent in self.env.agents}
+                    
+        if obs_all_agents:
+            return observation_dict, info, all_observations
+        else:
+            return observation_dict, info
 
     def step(self, action: Any) -> Tuple[Dict, List[int], bool, bool, Dict]:
         self.env.step(action)
