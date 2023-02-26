@@ -271,16 +271,9 @@ class BaseVectorEnv(object):
             self.workers[i].send(None, **kwargs)
         ret_list = [self.workers[i].recv() for i in id]
 
-        if kwargs.get('obs_all_agents', False):
-            assert isinstance(ret_list[0], (tuple, list)) and len(
-                ret_list[0]
-            ) == 3 and isinstance(ret_list[0][1], dict)
-            
-            obs_all = [r[2] for r in ret_list]
-        else:
-            assert isinstance(ret_list[0], (tuple, list)) and len(
-                ret_list[0]
-            ) == 2 and isinstance(ret_list[0][1], dict)
+        assert isinstance(ret_list[0], (tuple, list)) and len(
+            ret_list[0]
+        ) == 2 and isinstance(ret_list[0][1], dict)
 
         obs_list = [r[0] for r in ret_list]
 
@@ -295,11 +288,7 @@ class BaseVectorEnv(object):
             obs = np.array(obs_list, dtype=object)
 
         infos = [r[1] for r in ret_list]
-        
-        if kwargs.get('obs_all_agents', False):
-            return obs, infos, obs_all  # type: ignore
-        else:
-            return obs, infos  # type: ignore
+        return obs, infos  # type: ignore
 
     def step(
         self,
