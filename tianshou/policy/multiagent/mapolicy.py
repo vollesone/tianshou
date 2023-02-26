@@ -71,8 +71,10 @@ class MultiAgentPolicyManager(BasePolicy):
                 agent_next_index = np.nonzero(batch.obs.agent_id == agent_next)[0]
             else:
                 agent_next_index = np.nonzero(batch.obs.agent_id == agent_next)[0]
-                agent_next_index = agent_next_index[1:] + agent_next_index[-1:]
-                # right shift the indices
+                
+                # left shift the indices, repeat last index
+                agent_next_index[0] = agent_next_index[-1]
+                agent_next_index = np.roll(agent_next_index, -1)
             
             if len(agent_index) == 0:
                 results[agent] = Batch()
@@ -86,7 +88,7 @@ class MultiAgentPolicyManager(BasePolicy):
                 if hasattr(tmp_batch.obs, 'obs'):
                     tmp_batch.obs = tmp_batch.obs.obs
                 if hasattr(tmp_batch.obs_next, 'obs'):
-                    tmp_batch.obs_next = tmp_batch.obs_next.obs
+                    tmp_batch.obs_next = tmp_batch_next.obs_next.obs
             results[agent] = policy.process_fn(tmp_batch, buffer, tmp_indice)
         if has_rew:  # restore from save_rew
             buffer._meta.rew = save_rew
