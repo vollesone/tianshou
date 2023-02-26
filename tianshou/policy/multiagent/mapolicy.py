@@ -58,12 +58,27 @@ class MultiAgentPolicyManager(BasePolicy):
             # Since we do not override buffer.__setattr__, here we use _meta to
             # change buffer.rew, otherwise buffer.rew = Batch() has no effect.
             save_rew, buffer._meta.rew = buffer.rew, Batch()
-        for agent, policy in self.policies.items():
+        
+        agents = list(self.policies)
+        agents_next = agents[-1:] + agents[:-1]       # Right shifted array
+        
+        for agent, agent_next in zip(agents, agents_next):
+            policy = self.policies[agent]
+            
             agent_index = np.nonzero(batch.obs.agent_id == agent)[0]
+            
+            if agent == agents[0]:
+                agent_next_index = np.nonzero(batch.obs.agent_id == agent_next)[0]
+            else:
+                agent_next_index = np.nonzero(batch.obs.agent_id == agent_next)[0]
+                agent_next_index = agent_next_index[1:] + agent_next_index[-1:]
+                # right shift the indices
+            
             if len(agent_index) == 0:
                 results[agent] = Batch()
                 continue
             tmp_batch, tmp_indice = batch[agent_index], indice[agent_index]
+            tmp_batch_next = batch[agent_next_index]
             if has_rew:
                 tmp_batch.rew = tmp_batch.rew[:, self.agent_idx[agent]]
                 buffer._meta.rew = save_rew[:, self.agent_idx[agent]]
@@ -71,7 +86,7 @@ class MultiAgentPolicyManager(BasePolicy):
                 if hasattr(tmp_batch.obs, 'obs'):
                     tmp_batch.obs = tmp_batch.obs.obs
                 if hasattr(tmp_batch.obs_next, 'obs'):
-                    tmp_batch.obs_next = tmp_batch.obs_next.obs
+                    tmp_batch.obs_next = tmp_batch_next.obs_next.obs
             results[agent] = policy.process_fn(tmp_batch, buffer, tmp_indice)
         if has_rew:  # restore from save_rew
             buffer._meta.rew = save_rew
