@@ -104,11 +104,11 @@ class PPOPolicy(A2CPolicy):
                 for param in self._actor_critic.parameters():
                     param.requires_grad = False
     
-    def unfreeze(self, grad_freeze):
+    def unfreeze(self, ungrad_freeze):
         if self.frozen:
             self.frozen = False
             
-            if grad_freeze:
+            if ungrad_freeze:
                 for param in self._actor_critic.parameters():
                     param.requires_grad = True
 
