@@ -62,7 +62,15 @@ class PettingZooEnv(AECEnv, ABC):
             "Action spaces for all agents must be identical. Perhaps " \
             "SuperSuit's pad_action_space wrapper can help (useage: " \
             "`supersuit.aec_wrappers.pad_action_space(env)`"
-
+        
+        # curriculum variables ################################################
+        # this is a terrible hack #############################################
+        if hasattr(self.env.unwrapped, 'pos_max_err'):
+            self.pos_max_err = self.env.unwrapped.pos_max_err
+        if hasattr(self.env.unwrapped, 'honesty'):
+            self.honesty = self.env.unwrapped.honesty
+        #######################################################################
+        
         self.reset()
 
     def reset(self, *args: Any, **kwargs: Any) -> Tuple[dict, dict]:
@@ -89,6 +97,14 @@ class PettingZooEnv(AECEnv, ABC):
                     'agent_id': self.env.agent_selection,
                     'obs': observation,
                 }
+        
+        # curriculum variables ################################################
+        # this is a terrible hack #############################################
+        if hasattr(self.env.unwrapped, 'pos_max_err'):
+            self.env.unwrapped.pos_max_err = self.pos_max_err
+        if hasattr(self.env.unwrapped, 'honesty'):
+            self.env.unwrapped.honesty = self.honesty
+        #######################################################################
 
         return observation_dict, info
 
