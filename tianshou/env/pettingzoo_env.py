@@ -65,10 +65,13 @@ class PettingZooEnv(AECEnv, ABC):
         
         # curriculum variables ################################################
         # this is a terrible hack #############################################
-        if hasattr(self.env.unwrapped, 'pos_max_err'):
-            self.pos_max_err = self.env.unwrapped.pos_max_err
-        if hasattr(self.env.unwrapped, 'honesty'):
-            self.honesty = self.env.unwrapped.honesty
+        if hasattr(self.env.unwrapped, 'env'):
+            print('bruh1')
+            if hasattr(self.env.unwrapped.env, 'pos_max_error'):
+                self.pos_max_error = self.env.unwrapped.env.pos_max_error
+                print('bruh2')
+            if hasattr(self.env.unwrapped.env, 'honesty'):
+                self.honesty = self.env.unwrapped.env.honesty
         #######################################################################
         
         self.reset()
@@ -100,10 +103,13 @@ class PettingZooEnv(AECEnv, ABC):
         
         # curriculum variables ################################################
         # this is a terrible hack #############################################
-        if hasattr(self.env.unwrapped, 'pos_max_err'):
-            self.env.unwrapped.pos_max_err = self.pos_max_err
-        if hasattr(self.env.unwrapped, 'honesty'):
-            self.env.unwrapped.honesty = self.honesty
+        if hasattr(self.env.unwrapped, 'env'):
+            print('bruh3')
+            if hasattr(self.env.unwrapped.env, 'pos_max_error'):
+                self.env.unwrapped.env.pos_max_error = self.pos_max_error
+                print('bruh4')
+            if hasattr(self.env.unwrapped.env, 'honesty'):
+                self.env.unwrapped.env.honesty = self.honesty
         #######################################################################
 
         return observation_dict, info
