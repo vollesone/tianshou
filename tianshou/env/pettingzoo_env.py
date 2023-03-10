@@ -66,10 +66,8 @@ class PettingZooEnv(AECEnv, ABC):
         # curriculum variables ################################################
         # this is a terrible hack #############################################
         if hasattr(self.env.unwrapped, 'env'):
-            print('bruh1')
             if hasattr(self.env.unwrapped.env, 'pos_max_error'):
                 self.pos_max_error = self.env.unwrapped.env.pos_max_error
-                print('bruh2')
             if hasattr(self.env.unwrapped.env, 'honesty'):
                 self.honesty = self.env.unwrapped.env.honesty
         #######################################################################
@@ -104,10 +102,8 @@ class PettingZooEnv(AECEnv, ABC):
         # curriculum variables ################################################
         # this is a terrible hack #############################################
         if hasattr(self.env.unwrapped, 'env'):
-            print('bruh3')
             if hasattr(self.env.unwrapped.env, 'pos_max_error'):
                 self.env.unwrapped.env.pos_max_error = self.pos_max_error
-                print('bruh4')
             if hasattr(self.env.unwrapped.env, 'honesty'):
                 self.env.unwrapped.env.honesty = self.honesty
         #######################################################################
