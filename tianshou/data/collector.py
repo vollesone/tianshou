@@ -62,6 +62,7 @@ class Collector(object):
         buffer: Optional[ReplayBuffer] = None,
         preprocess_fn: Optional[Callable[..., Batch]] = None,
         exploration_noise: bool = False,
+        liars_mask=None,
     ) -> None:
         super().__init__()
         if isinstance(env, gym.Env) and not hasattr(env, "__len__"):
@@ -75,6 +76,9 @@ class Collector(object):
         self.policy = policy
         self.preprocess_fn = preprocess_fn
         self._action_space = self.env.action_space
+        
+        self.liars_mask = liars_mask
+        
         # avoid creating attribute outside __init__
         self.reset(False)
 
@@ -272,10 +276,17 @@ class Collector(object):
                 act_sample = self.policy.map_action_inverse(act_sample)  # type: ignore
                 self.data.update(act=act_sample)
             else:
+                assert no_grad, 'assuming no_grad is True'
+                
                 if no_grad:
                     with torch.no_grad():  # faster than retain_grad version
                         # self.data.obs will be used by agent to get result
-                        result = self.policy(self.data, last_state)
+                        if self.liars_mask is None:
+                            result = self.policy(self.data, last_state)
+                        else:
+                            result, act_liars_mask = self.policy(self.data, last_state, liars_mask=self.liars_mask)
+                            act_liars_mask = to_numpy(act_liars_mask)
+                            action_remap_liars_mask = self.policy.map_action(act_liars_mask)
                 else:
                     result = self.policy(self.data, last_state)
                 # update state / act / policy into self.data
@@ -292,10 +303,18 @@ class Collector(object):
             # get bounded and remapped actions first (not saved into buffer)
             action_remap = self.policy.map_action(self.data.act)
             # step in env
-            obs_next, rew, terminated, truncated, info = self.env.step(
-                action_remap,  # type: ignore
-                ready_env_ids
-            )
+            if self.liars_mask is None:
+                obs_next, rew, terminated, truncated, info = self.env.step(
+                    action_remap,  # type: ignore
+                    ready_env_ids
+                )
+            else:
+                obs_next, rew, terminated, truncated, info = self.env.step(
+                    action_remap,  # type: ignore
+                    ready_env_ids,
+                    action_remap_liars_mask,
+                )
+            
             done = np.logical_or(terminated, truncated)
 
             self.data.update(

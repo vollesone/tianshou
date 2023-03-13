@@ -31,11 +31,14 @@ class DummyEnvWorker(EnvWorker):
         # Sequential EnvWorker objects are always ready
         return workers
 
-    def send(self, action: Optional[np.ndarray], **kwargs: Any) -> None:
+    def send(self, action: Optional[np.ndarray], action_liars_mask=None, **kwargs: Any) -> None:
         if action is None:
             self.result = self.env.reset(**kwargs)
         else:
-            self.result = self.env.step(action)  # type: ignore
+            if action_liars_mask is None:
+                self.result = self.env.step(action)  # type: ignore
+            else:
+                self.result = self.env.step(action, action_liars_mask)  # type: ignore
 
     def seed(self, seed: Optional[int] = None) -> Optional[List[int]]:
         super().seed(seed)

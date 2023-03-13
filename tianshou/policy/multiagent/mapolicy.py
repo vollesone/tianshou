@@ -164,6 +164,20 @@ class MultiAgentPolicyManager(BasePolicy):
                 state=None if state is None else state[agent_id],
                 **kwargs
             )
+            
+            liars_mask = kwargs.get('liars_mask', None)
+            if liars_mask is not None:
+                assert state is None or state.is_empty(recurse=True), 'Not tested for case when this is false'
+                
+                tmp_batch_copy = Batch(batch_dict=tmp_batch, copy=True)
+                tmp_batch_copy.obs[:, liars_mask] = np.zeros_like(tmp_batch_copy.obs[:, liars_mask])
+                out_liars_mask = policy(
+                    batch=tmp_batch_copy,
+                    state=None if state is None else state[agent_id],
+                    **kwargs
+                )
+                act_liars_mask = out_liars_mask.act
+            
             act = out.act
             each_state = out.state \
                 if (hasattr(out, "state") and out.state is not None) \
@@ -186,7 +200,11 @@ class MultiAgentPolicyManager(BasePolicy):
             out_dict[agent_id] = out
         holder["out"] = out_dict
         holder["state"] = state_dict
-        return holder
+        
+        if liars_mask is None:
+            return holder
+        else:
+            return holder, act_liars_mask
     
     def reset_last(self, agent_id, actor_last=False, critic_last=False):
         self.policies[agent_id].reset_last(actor_last=actor_last, critic_last=critic_last)

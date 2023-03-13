@@ -110,8 +110,11 @@ class PettingZooEnv(AECEnv, ABC):
 
         return observation_dict, info
 
-    def step(self, action: Any) -> Tuple[Dict, List[int], bool, bool, Dict]:
-        self.env.step(action)
+    def step(self, action: Any, action_liars_mask=None) -> Tuple[Dict, List[int], bool, bool, Dict]:
+        if action_liars_mask is None:
+            self.env.step(action)
+        else:
+            self.env.step(action, action_liars_mask)
 
         observation, rew, term, trunc, info = self.env.last()
 
